@@ -1,0 +1,11 @@
+version: "3"
+services:
+ tado_aa:
+  restart: always
+  container_name: tado-container
+  image: tado_aa_geo:latest
+  environment:
+   - USERNAME=yourusername
+   - PASSWORD=yourpassword
+   - GEOFENCING=False
+   - TZ=yourtimezone.e.g<Europe/Berlin>

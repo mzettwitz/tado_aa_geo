@@ -1,11 +1,12 @@
 #
 # tado_aa.py (Tado Auto-Assist for Geofencing and Open Window Detection)
 # Created by Adrian Slabu <adrianslabu@icloud.com> on 11.02.2021
-# 
+# Edited by Martin Zettwitz on 28.02.2023
+#
 
 import sys
 import time
-import inspect
+import os
 
 from datetime import datetime
 from PyTado.interface import Tado
@@ -15,18 +16,19 @@ def main():
     global lastMessage
     global username
     global password
+    global use_geo_fencing
     global checkingInterval
     global errorRetringInterval
     global enableLog
     global logFile
 
-
     lastMessage = ""
 
     #Settings
     #--------------------------------------------------
-    username = "your_tado_username" # tado username
-    password = "your_tado_password" # tado password
+    username = os.getenv("USERNAME")
+    password = os.getenv("PASSWORD")
+    use_geo_fencing = os.getenv("GEOFENCING", 'False').lower() in ('true', '1')
 
     checkingInterval = 10.0 # checking interval (in seconds)
     errorRetringInterval = 30.0 # retrying interval (in seconds), in case of an error
@@ -34,6 +36,11 @@ def main():
     enableLog = False # activate the log with "True" or disable it with "False"
     logFile = "/l.log" # log file location
     #--------------------------------------------------
+
+    if (use_geo_fencing is True):
+        print("Geo Fencing enabled.")
+    else:
+        print("Geo Fencing disabled.")
 
     login()
     homeStatus()
@@ -68,6 +75,8 @@ def homeStatus():
     try:
         homeState = t.getHomeState()["presence"]
         devicesHome = []
+        if (use_geo_fencing is False):
+            devicesHome.append("no_fencing")
 
         for mobileDevice in t.getMobileDevices():
             if (mobileDevice["settings"]["geoTrackingEnabled"] == True):
@@ -151,6 +160,8 @@ def engine():
             homeState = t.getHomeState()["presence"]
 
             devicesHome.clear()
+            if (use_geo_fencing is False):
+                devicesHome.append("no_fencing")
 
             for mobileDevice in t.getMobileDevices():
                 if (mobileDevice["settings"]["geoTrackingEnabled"] == True):
