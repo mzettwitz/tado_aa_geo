@@ -87,7 +87,9 @@ def homeStatus():
         if (lastMessage.find("Connection Error") != -1 or lastMessage.find("Waiting for the device location") != -1):
             printm ("Successfully got the location, everything looks good now, continuing..\n")
 
-        if (len(devicesHome) > 0 and homeState == "HOME"):
+        if (use_geo_fencing is False):
+            devicesHome.clear()
+        elif (len(devicesHome) > 0 and homeState == "HOME"):
             if (len(devicesHome) == 1):
                 printm ("Your home is in HOME Mode, the device " + devicesHome[0] + " is at home.")
             else:
@@ -173,7 +175,9 @@ def engine():
                 printm ("Successfully got the location, everything looks good now, continuing..\n")
                 printm ("Waiting for a change in devices location or for an open window..")
 
-            if (len(devicesHome) > 0 and homeState == "AWAY"):
+            if (use_geo_fencing is False):
+                devicesHome.clear()
+            elif (len(devicesHome) > 0 and homeState == "AWAY"):
                 if (len(devicesHome) == 1):
                     printm (devicesHome[0] + " is at home, activating HOME mode.")
                 else:
