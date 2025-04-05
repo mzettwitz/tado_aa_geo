@@ -5,7 +5,11 @@ services:
   container_name: tado-container
   image: tado_aa_geo:latest
   environment:
-   - USERNAME=yourusername
-   - PASSWORD=yourpassword
    - GEOFENCING=False
    - TZ=yourtimezone.e.g<Europe/Berlin>
+  volumes:
+    - tado_data:/tado_token/
+
+volumes:
+  tado_data:
+    driver: local

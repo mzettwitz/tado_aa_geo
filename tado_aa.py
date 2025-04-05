@@ -1,7 +1,7 @@
 #
 # tado_aa.py (Tado Auto-Assist for Geofencing and Open Window Detection)
 # Created by Adrian Slabu <adrianslabu@icloud.com> on 11.02.2021
-# Edited by Martin Zettwitz on 28.02.2023
+# Edited by Martin Zettwitz on 05.04.2025
 #
 
 import sys
@@ -14,20 +14,19 @@ from PyTado.interface import Tado
 def main():
 
     global lastMessage
-    global username
-    global password
     global use_geo_fencing
     global checkingInterval
     global errorRetringInterval
     global enableLog
     global logFile
+    global TOKEN_FILE
+
+    TOKEN_FILE = "/tado_token/token"
 
     lastMessage = ""
 
     #Settings
     #--------------------------------------------------
-    username = os.getenv("USERNAME")
-    password = os.getenv("PASSWORD")
     use_geo_fencing = os.getenv("GEOFENCING", 'False').lower() in ('true', '1')
 
     checkingInterval = 10.0 # checking interval (in seconds)
@@ -50,19 +49,36 @@ def login():
     global t
 
     try:
-        t = Tado(username, password)
-
-        if (lastMessage.find("Connection Error") != -1):
-            printm ("Connection established, everything looks good now, continuing..\n")
-
+        t = Tado(token_file_path=TOKEN_FILE)
+        status = t.device_activation_status()
+         
+        TOKEN_FILE_EXISTS = os.path.isfile(TOKEN_FILE)
+ 
+        if status == "PENDING":
+            url = t.device_verification_url()
+            print(f"Please visit this URL to authenticate:\n")
+            print(f'{url}')
+            t.device_activation()
+            status = t.device_activation_status()
+ 
+        if status == "COMPLETED":
+            if TOKEN_FILE_EXISTS:
+                print("Login successful.")
+            else:
+                print("Login successful. Refresh token saved.")
+        else:
+            print(f"Login failed. Current status: {status}\nRetrying")
+            time.sleep(errorRetringInterval)
+            login()
+        
     except KeyboardInterrupt:
         printm ("Interrupted by user.")
         sys.exit(0)
 
     except Exception as e:
-        if (str(e).find("access_token") != -1):
-            printm ("Login error, check the username / password !")
-            sys.exit(0)
+        if (str(e).find("Permission denied") != -1):
+            printm (str(e))
+            login()
         else:
             printm (str(e) + "\nConnection Error, retrying in " + str(errorRetringInterval) + " sec..")
             time.sleep(errorRetringInterval)

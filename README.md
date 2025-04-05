@@ -10,5 +10,6 @@ This script was possible because of PyTado author, Chris Jewell (chrism0dwk@gmai
 
 
 ## For docker use:
-Build with `docker build -t tado_aa_geo .` and run docker from console `docker run --name tado_aa_container --restart always -e USERNAME=yourusername -e PASSWORD=yourpassword -e GEOFENCING=False tado_aa_geo:latest`.  
+Build with `docker build -t tado_aa_geo .` and run docker from console `docker run --name tado_aa_container --restart always -e GEOFENCING=False tado_aa_geo:latest`.  
 Alternatively, use docker-compose `docker compose up -d` Don't forget to set the environment variables in compose.yml.
+You are prompted to login at your tado account the first time, to authenticate your device. Enter the link in the console output. The auth token will be stored inside your container.
